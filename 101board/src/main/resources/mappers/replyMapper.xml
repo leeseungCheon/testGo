@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.human.dao.ReplyDAO">
+	<select id="list" resultType="ReplyDTO">
+		select
+		*
+		from
+		tbl_reply
+		where bno =
+		#{bno}
+		order by rno desc
+	</select>
+	<insert id="insert">
+		insert into tbl_reply (rno, bno, replytext, replyer)
+		values (seq_reply.nextval, #{bno},#{replytext},#{replyer})
+	</insert>
+
+	<update id="update">
+		update tbl_reply set replytext = #{replytext},
+		updatedate = sysdate
+		where rno = #{rno}
+	</update>
+	
+	<delete id="delete">
+		delete from tbl_reply where rno =#{rno}
+	</delete>
+	
+	<delete id="deleteBno">
+		delete from tbl_reply where bno =#{bno}
+	</delete>
+	
+	
+	<select id="listPage" resultType="ReplyDTO">
+		<![CDATA[
+		select
+		rno, bno, replytext, replyer, regdate, updatedate
+		from
+		(
+		select /*+INDEX_DESC(tbl_reply pk_reply))*/
+		rownum rn, rno, bno, replytext, replyer, regdate, updatedate
+		from tbl_reply
+		where bno = #{bno}
+		and rno > 0
+		and rownum <= #{pm.page} * #{pm.perPageNum}
+		)
+		where rn > ( #{pm.page} -1) * #{pm.perPageNum}
+		]]>
+	</select>
+ <select id="count" resultType="int">
+ <![CDATA[
+ select 
+   count(bno) 
+ from 
+   tbl_reply 
+ where 
+   bno =#{bno} 
+ ]]>
+ </select>
+</mapper>
+
